@@ -31,10 +31,10 @@
         </div>
     </div>
 
-    <!-- ================= APLIKASI UTAMA (DASHBOARD) ================= -->
+    <!-- ================= APLIKASI UTAMA (DASHBOARD MYBCA STYLE) ================= -->
     <div id="appScreen" class="hidden min-h-screen pb-12">
         
-        <!-- Header Berkelas -->
+        <!-- Header Berkelas Ala Perbankan -->
         <header class="bg-slate-900/60 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-40 py-4 px-6">
             <div class="max-w-6xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3.5">
@@ -44,26 +44,23 @@
                         <p class="text-[10px] text-blue-400 font-semibold tracking-wider">PREMIUM TUNA PURVEYOR</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="text-xs bg-slate-800/80 hover:bg-red-500/10 hover:text-red-400 text-slate-300 px-4 py-2 rounded-xl border border-slate-700/60 transition font-medium flex items-center gap-1.5">
-                    Keluar
-                </button>
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-slate-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="statusKoneksiHeader">Terhubung</span>
+                    </div>
+                    <button onclick="logout()" class="text-xs bg-slate-800/80 hover:bg-red-500/10 hover:text-red-400 text-slate-300 px-4 py-2 rounded-xl border border-slate-700/60 transition font-medium">
+                        Keluar
+                    </button>
+                </div>
             </div>
         </header>
 
         <main class="max-w-6xl mx-auto px-4 mt-6 space-y-6">
             
-            <!-- Konfigurasi URL Spreadsheet -->
-            <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl flex flex-col md:flex-row items-center gap-3 shadow-sm">
-                <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 whitespace-nowrap">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    URL Web App Spreadsheet:
-                </div>
-                <input type="text" id="scriptUrl" placeholder="Tempel URL Web App Google Script di sini..." class="w-full text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-300 transition">
-            </div>
-
             <!-- ================= MENU CARD NAVIGATION ================= -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button onclick="gantiMenu('transaksi')" id="btnMenuTransaksi" class="p-5 rounded-2xl border text-left transition bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/25 group">
+                <button onclick="gantiMenu('transaksi')" id="btnMenuTransaksi" class="p-5 rounded-2xl border text-left transition bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/25">
                     <div class="text-base font-bold mb-1 flex items-center justify-between">
                         <span>🛒 Transaksi</span>
                         <span class="text-xs opacity-75 font-normal">Utama</span>
@@ -228,7 +225,7 @@
                 <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl text-xs text-slate-300 space-y-3">
                     <div class="flex items-center justify-between pb-2 border-b border-slate-900">
                         <span class="text-slate-400">Status Koneksi Spreadsheet:</span>
-                        <span id="statusKoneksi" class="text-amber-400 font-semibold">Menunggu URL Web App...</span>
+                        <span id="statusKoneksi" class="text-emerald-400 font-semibold">Terhubung Otomatis ✅</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-400">Item dalam Keranjang Sesi Ini:</span>
@@ -259,7 +256,14 @@
 
     <!-- Script Logika -->
     <script>
-        const PASSWORD_BENAR = "enol100";
+        // =========================================================================
+        // PENGATURAN UTAMA (URL SPREADSHEET & PASSWORD)
+        // =========================================================================
+        const PASSWORD_BENAR = "william123"; // Ganti password Anda di sini jika ingin mengubahnya
+        
+        // URL Web App Google Apps Script Anda sudah ditanam otomatis di bawah ini:
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGIiFNcmEV6YFbIXXR1NGnFLY8-7hJQmwXOjz475KVMY1wzL7DWDYHmiJ5nTDlQUY2/exec"; 
+
         let keranjang = [];
         let dataProdukGlobal = [];
         let dataPelangganGlobal = [];
@@ -271,6 +275,7 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 sessionStorage.setItem('wps_logged_in', 'true');
+                muatDataMaster();
             } else {
                 document.getElementById('errorLogin').classList.remove('hidden');
             }
@@ -285,11 +290,7 @@
             ['transaksi', 'pelanggan', 'produk', 'laporan'].forEach(m => {
                 document.getElementById('panel' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('hidden');
                 let btn = document.getElementById('btnMenu' + m.charAt(0).toUpperCase() + m.slice(1));
-                if (m === 'transaksi') {
-                    btn.className = "p-5 rounded-2xl border text-left transition bg-slate-900 border-slate-800/80 text-slate-300 hover:bg-slate-850 hover:border-slate-700";
-                } else {
-                    btn.className = "p-5 rounded-2xl border text-left transition bg-slate-900 border-slate-800/80 text-slate-300 hover:bg-slate-850 hover:border-slate-700";
-                }
+                btn.className = "p-5 rounded-2xl border text-left transition bg-slate-900 border-slate-800/80 text-slate-300 hover:bg-slate-850 hover:border-slate-700";
             });
 
             document.getElementById('panel' + menu.charAt(0).toUpperCase() + menu.slice(1)).classList.remove('hidden');
@@ -306,56 +307,36 @@
             if (sessionStorage.getItem('wps_logged_in') === 'true') {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
+                muatDataMaster();
             }
-
-            const savedUrl = localStorage.getItem('wps_script_url');
-            if (savedUrl) {
-                document.getElementById('scriptUrl').value = savedUrl;
-                muatDataMaster(savedUrl);
-            }
-
-            document.getElementById('scriptUrl').addEventListener('change', function() {
-                localStorage.setItem('wps_script_url', this.value);
-                muatDataMaster(this.value);
-            });
         };
 
-        function muatDataMaster(url) {
-            if (!url) return;
-            document.getElementById('statusKoneksi').innerText = "Menghubungkan ke server...";
-            document.getElementById('statusKoneksi').className = "text-blue-400 font-semibold";
-
-            fetch(url + "?action=getDataMaster")
+        function muatDataMaster() {
+            fetch(SCRIPT_URL + "?action=getDataMaster")
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {
                         dataProdukGlobal = data.produk;
                         dataPelangganGlobal = data.pelanggan;
-                        document.getElementById('statusKoneksi').innerText = "Terhubung dengan Spreadsheet ✅";
-                        document.getElementById('statusKoneksi').className = "text-emerald-400 font-semibold";
                         
-                        // Dropdown Pelanggan
                         let selectCust = document.getElementById('selectPelanggan');
                         selectCust.innerHTML = '<option value="">-- Pilih Rumah Makan / Pelanggan --</option>';
                         for (let i = 1; i < dataPelangganGlobal.length; i++) {
                             selectCust.innerHTML += `<option value="${dataPelangganGlobal[i][0]}">${dataPelangganGlobal[i][1]}</option>`;
                         }
 
-                        // Tabel Pelanggan
                         let tbodyCust = document.getElementById('tabelMasterPelanggan');
                         tbodyCust.innerHTML = "";
                         for (let i = 1; i < dataPelangganGlobal.length; i++) {
                             tbodyCust.innerHTML += `<tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition"><td class="py-3 px-3 text-slate-400">${dataPelangganGlobal[i][0]}</td><td class="py-3 px-3 font-semibold text-white">${dataPelangganGlobal[i][1]}</td><td class="py-3 px-3 text-slate-300">${dataPelangganGlobal[i][2]}</td><td class="py-3 px-3 text-emerald-400 font-medium">Rp ${Number(dataPelangganGlobal[i][3]).toLocaleString('id-ID')}</td></tr>`;
                         }
 
-                        // Dropdown Produk
                         let selectProd = document.getElementById('selectProduk');
                         selectProd.innerHTML = '<option value="">-- Pilih Produk Tuna --</option>';
                         for (let i = 1; i < dataProdukGlobal.length; i++) {
                             selectProd.innerHTML += `<option value="${dataProdukGlobal[i][0]}">${dataProdukGlobal[i][1]} (Rp ${Number(dataProdukGlobal[i][2]).toLocaleString('id-ID')}/Kg)</option>`;
                         }
 
-                        // Tabel Produk
                         let tbodyProd = document.getElementById('tabelMasterProduk');
                         tbodyProd.innerHTML = "";
                         for (let i = 1; i < dataProdukGlobal.length; i++) {
@@ -364,8 +345,7 @@
                     }
                 })
                 .catch(err => {
-                    document.getElementById('statusKoneksi').innerText = "Gagal terhubung ❌ (Periksa URL)";
-                    document.getElementById('statusKoneksi').className = "text-red-400 font-semibold";
+                    console.error("Gagal memuat data master.");
                 });
         }
 
@@ -439,10 +419,8 @@
         }
 
         function simpanDanKirimWA() {
-            let url = document.getElementById('scriptUrl').value;
             let idCust = document.getElementById('selectPelanggan').value;
 
-            if (!url) { alert("URL Web App Google Script belum diisi di atas!"); return; }
             if (!idCust) { alert("Pilih pelanggan terlebih dahulu!"); return; }
             if (keranjang.length === 0) { alert("Keranjang belanja masih kosong!"); return; }
 
@@ -455,7 +433,7 @@
                 items: keranjang
             };
 
-            fetch(url, {
+            fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
